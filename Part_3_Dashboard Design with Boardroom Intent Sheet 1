@@ -1,0 +1,108 @@
+import os
+from openpyxl import Workbook
+from openpyxl.styles import Font, PatternFill, Alignment
+from openpyxl.utils import get_column_letter
+
+# -----------------------------
+# Step 1: Save to Desktop
+# -----------------------------
+desktop_path = os.path.join(os.path.expanduser("~"), "Desktop")
+file_path_excel = os.path.join(desktop_path, "B2B_Outreach_Dashboard.xlsx")
+
+# -----------------------------
+# Step 2: Create Workbook
+# -----------------------------
+wb = Workbook()
+ws = wb.active
+ws.title = "Dashboard"
+
+# -----------------------------
+# Step 3: Funnel Conversion Metrics
+# -----------------------------
+ws['A1'] = "Funnel Conversion Metrics"
+ws['A1'].font = Font(bold=True, size=14)
+
+funnel_headers = ["Campaign", "Leads Generated", "MQL Conversion %", "SQL Conversion %", "Clients / Deals Closed"]
+funnel_data = [
+    ["Pharma-Supply-Intel", 100, 48, 15, 8],
+    ["D2C-Commerce-AI", 120, 52, 10, 5],
+    ["Infra-TrackPro", 110, 35, 30, 12]
+]
+
+for col_num, header in enumerate(funnel_headers, 1):
+    cell = ws.cell(row=2, column=col_num, value=header)
+    cell.font = Font(bold=True)
+    cell.fill = PatternFill("solid", fgColor="D3D3D3")
+    cell.alignment = Alignment(horizontal="center")
+
+for row_num, row_data in enumerate(funnel_data, start=3):
+    for col_num, value in enumerate(row_data, start=1):
+        ws.cell(row=row_num, column=col_num, value=value)
+        ws.cell(row=row_num, column=col_num).alignment = Alignment(horizontal="center")
+
+# -----------------------------
+# Step 4: Campaign-wise AIDCA Matrix
+# -----------------------------
+ws['A7'] = "Campaign-wise AIDCA Matrix"
+ws['A7'].font = Font(bold=True, size=14)
+
+aidca_headers = ["Campaign", "Attention", "Interest", "Desire", "Conviction", "Action", "Notes / Fix"]
+aidca_data = [
+    ["Pharma-Supply-Intel", "Strong", "Moderate", "Moderate", "Weak", "Moderate", "Add case studies to fix Conviction"],
+    ["D2C-Commerce-AI", "Moderate", "Weak", "Moderate", "Strong", "Moderate", "Simplify messaging, add relatable CTA"],
+    ["Infra-TrackPro", "Strong", "Strong", "Moderate", "Moderate", "Weak", "Strengthen Action with urgency"]
+]
+
+for col_num, header in enumerate(aidca_headers, 1):
+    cell = ws.cell(row=8, column=col_num, value=header)
+    cell.font = Font(bold=True)
+    cell.fill = PatternFill("solid", fgColor="D3D3D3")
+    cell.alignment = Alignment(horizontal="center")
+
+for row_num, row_data in enumerate(aidca_data, start=9):
+    for col_num, value in enumerate(row_data, start=1):
+        cell = ws.cell(row=row_num, column=col_num, value=value)
+        cell.alignment = Alignment(horizontal="center")
+        # Color-code based on value
+        if str(value).lower() == "strong":
+            cell.fill = PatternFill("solid", fgColor="C6EFCE")  # green
+        elif str(value).lower() == "moderate":
+            cell.fill = PatternFill("solid", fgColor="FFEB9C")  # yellow
+        elif str(value).lower() == "weak":
+            cell.fill = PatternFill("solid", fgColor="FFC7CE")  # red
+
+# -----------------------------
+# Step 5: Persona Hit Analysis
+# -----------------------------
+ws['A13'] = "Persona Hit Analysis"
+ws['A13'].font = Font(bold=True, size=14)
+
+persona_headers = ["Persona", "Campaign Targeted", "Engagement Rate %", "Lead Quality", "Notes"]
+persona_data = [
+    ["COO – Pharma SME", "Pharma-Supply-Intel", 48, "High", "Engaging but Conviction needs trust proof"],
+    ["CTO – D2C Brand", "D2C-Commerce-AI", 52, "Medium", "Tone too technical"],
+    ["COO – Construction", "Infra-TrackPro", 35, "Medium", "Weak Action CTA"]
+]
+
+for col_num, header in enumerate(persona_headers, 1):
+    cell = ws.cell(row=14, column=col_num, value=header)
+    cell.font = Font(bold=True)
+    cell.fill = PatternFill("solid", fgColor="D3D3D3")
+    cell.alignment = Alignment(horizontal="center")
+
+for row_num, row_data in enumerate(persona_data, start=15):
+    for col_num, value in enumerate(row_data, start=1):
+        ws.cell(row=row_num, column=col_num, value=value)
+        ws.cell(row=row_num, column=col_num).alignment = Alignment(horizontal="center")
+
+# -----------------------------
+# Step 6: Adjust Column Widths
+# -----------------------------
+for i, column_cells in enumerate(ws.columns, 1):
+    ws.column_dimensions[get_column_letter(i)].width = 25
+
+# -----------------------------
+# Step 7: Save Excel
+# -----------------------------
+wb.save(file_path_excel)
+print(f"B2B Outreach Dashboard Excel saved to Desktop at: {file_path_excel}")
