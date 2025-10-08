@@ -1,0 +1,68 @@
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+from reportlab.lib.units import inch
+
+# File path
+file_path = "/mnt/data/Part1_Prompt_Engineering_for_Mass_Personalization.pdf"
+
+# Create PDF
+doc = SimpleDocTemplate(file_path, pagesize=A4, title="Part 1 - Prompt Engineering for Mass Personalization")
+styles = getSampleStyleSheet()
+styles.add(ParagraphStyle(name="Heading", fontSize=14, leading=16, spaceAfter=10, bold=True))
+styles.add(ParagraphStyle(name="SubHeading", fontSize=12, leading=14, spaceAfter=8, textColor="#333333"))
+styles.add(ParagraphStyle(name="Body", fontSize=10, leading=13))
+
+story = []
+
+# Title
+story.append(Paragraph("Part 1: Prompt Engineering for Mass Personalization", styles["Heading"]))
+story.append(Spacer(1, 0.2 * inch))
+
+# Prompt 1: Pharma COO
+story.append(Paragraph("Prompt 1: COO of a Mid-Size Pharmaceutical SME", styles["SubHeading"]))
+story.append(Paragraph("""
+You are an enterprise outreach AI copywriter. Write a B2B outbound email targeted to the COO of a mid-size pharmaceutical SME, introducing a cloud-based Supply Chain Intelligence Platform that enhances batch traceability and regulatory compliance.
+""", styles["Body"]))
+
+story.append(Paragraph("""
+<b>AIDCA Structure:</b><br/>
+[A] Attention – Highlight a regulatory or operational tension (“85% of pharma SMEs struggle with batch visibility”).<br/>
+[I] Interest – Link to a recent FDA/WHO compliance update or logistics pain point.<br/>
+[D] Desire – Present real-time dashboards reducing recall risk and downtime.<br/>
+[C] Conviction – Mention 2–3 pharma clients who cut compliance reporting time by 40%.<br/>
+[A] Action – Invite for a discovery call or compliance audit simulation.<br/>
+""", styles["Body"]))
+
+story.append(Paragraph("""
+<b>Persuasion Principles:</b> Social Proof (peer pharma results), Scarcity (limited pilot slots).<br/>
+<b>Negative Prompt:</b> Avoid buzzwords (“digital transformation”) or technical jargon.
+""", styles["Body"]))
+
+story.append(Spacer(1, 0.3 * inch))
+
+# Prompt 2: CTO of D2C Brand
+story.append(Paragraph("Prompt 2: CTO of a D2C Brand", styles["SubHeading"]))
+story.append(Paragraph("""
+You are an enterprise outreach AI copywriter. Write a B2B outbound email targeted to the CTO of a fast-growing D2C brand, introducing a cloud-based Commerce Intelligence Platform that enhances inventory forecasting and demand synchronization.
+""", styles["Body"]))
+
+story.append(Paragraph("""
+<b>AIDCA Structure:</b><br/>
+[A] Attention – Highlight data chaos or scaling issues (“7 in 10 D2C tech leaders struggle to sync forecasts”).<br/>
+[I] Interest – Tie to logistics costs or AI-driven customer demands.<br/>
+[D] Desire – Show unified dashboards predicting inventory needs and reducing stockouts.<br/>
+[C] Conviction – Mention 2–3 D2C clients improving efficiency by 25–30%.<br/>
+[A] Action – Invite for a demo or architecture walkthrough.<br/>
+""", styles["Body"]))
+
+story.append(Paragraph("""
+<b>Persuasion Principles:</b> Social Proof (client outcomes), Scarcity (limited beta access).<br/>
+<b>Negative Prompt:</b> Avoid hype words (“AI revolution,” “synergy”); keep tone consultative.
+""", styles["Body"]))
+
+story.append(Spacer(1, 0.3 * inch))
+
+# Save PDF
+doc.build(story)
+file_path
