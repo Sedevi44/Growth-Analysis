@@ -1,19 +1,30 @@
+import os
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
 from reportlab.lib import colors
 from reportlab.lib.units import inch
 
-# File path
-file_path_part2 = "/mnt/data/Part2_Funnel_Debugging_via_Prompt_Based_Diagnosis.pdf"
+# -----------------------------
+# Step 1: Save to Desktop
+# -----------------------------
+desktop_path = os.path.join(os.path.expanduser("~"), "Desktop")
+file_path_part2 = os.path.join(desktop_path, "Part2_Funnel_Debugging_Compact_Breaks.pdf")
 
-# Create PDF
-doc = SimpleDocTemplate(file_path_part2, pagesize=A4, title="Part 2 - Funnel Debugging via Prompt-Based Diagnosis")
+# -----------------------------
+# Step 2: Styles
+# -----------------------------
 styles = getSampleStyleSheet()
 styles.add(ParagraphStyle(name="Heading", fontSize=14, leading=16, spaceAfter=10, bold=True))
 styles.add(ParagraphStyle(name="SubHeading", fontSize=12, leading=14, spaceAfter=8, textColor="#333333"))
 styles.add(ParagraphStyle(name="Body", fontSize=10, leading=13))
 
+# Smaller font for tables
+small_style = ParagraphStyle(name='Small', fontSize=8, leading=10)
+
+# -----------------------------
+# Step 3: Create Story
+# -----------------------------
 story = []
 
 # Title
@@ -22,75 +33,99 @@ story.append(Spacer(1, 0.2 * inch))
 
 # Mock Funnel Dataset
 story.append(Paragraph("Mock Funnel Dataset (Simulated Data)", styles["SubHeading"]))
+
 funnel_data = [
     ["Campaign", "Stage Movement", "Response Rate (%)", "Drop-off Reason", "Campaign Message Summary"],
-    ["Pharma-Supply-Intel", "Lead → MQL → SQL → Client", "62 → 48 → 15 → 8", "Trust gap at SQL", "Focused on compliance features, lacked case proof"],
+    ["Pharma-Supply-Intel", "Lead → MQL → SQL → Client", "62 → 48 → 15 → 8", "Trust gap at SQL", "Focused on compliance features,<br/>lacked case proof"],
     ["D2C-Commerce-AI", "Lead → MQL → SQL → Client", "75 → 52 → 10 → 5", "Overly technical", "Emphasized architecture over benefits"],
-    ["Infra-TrackPro", "Lead → MQL → SQL → Client", "80 → 35 → 30 → 12", "Weak CTA", "Highlighted problems well but ended passively"]
+    ["Infra-TrackPro", "Lead → MQL → SQL → Client", "80 → 35 → 30 → 12", "Weak CTA", "Highlighted problems well<br/>but ended passively"]
 ]
-t = Table(funnel_data, repeatRows=1)
+
+# Wrap each cell in Paragraph
+funnel_data_small = []
+for row in funnel_data:
+    funnel_data_small.append([Paragraph(str(cell), small_style) for cell in row])
+
+col_widths = [100, 120, 70, 100, 150]
+t = Table(funnel_data_small, colWidths=col_widths, repeatRows=1)
 t.setStyle(TableStyle([
     ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#d3d3d3')),
     ('GRID', (0,0), (-1,-1), 0.5, colors.black),
     ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
+    ('VALIGN', (0,0), (-1,-1), 'TOP'),
+    ('LEFTPADDING', (0,0), (-1,-1), 4),
+    ('RIGHTPADDING', (0,0), (-1,-1), 4),
+    ('TOPPADDING', (0,0), (-1,-1), 2),
+    ('BOTTOMPADDING', (0,0), (-1,-1), 2)
 ]))
 story.append(t)
 story.append(Spacer(1, 0.2 * inch))
 
-# MMF Classification
+# MMF Classification with line breaks
 story.append(Paragraph("Step 1: Message–Market Fit (MMF) Classification", styles["SubHeading"]))
 mmf_text = """
-Pharma-Supply-Intel → High MQL, Low SQL → Misfit in trust-building.
-D2C-Commerce-AI → High Lead gen, Low Engagement → Headline / clarity issue.
+Pharma-Supply-Intel → High MQL, Low SQL → Misfit in trust-building.<br/>
+D2C-Commerce-AI → High Lead gen, Low Engagement → Headline / clarity issue.<br/>
 Infra-TrackPro → Decent SQL, Low Client conversion → CTA weakness.
 """
 story.append(Paragraph(mmf_text, styles["Body"]))
 story.append(Spacer(1, 0.2 * inch))
 
-# Layer of Failure Diagnosis
+# Layer of Failure Diagnosis with line breaks
 story.append(Paragraph("Step 2: Layer of Failure Diagnosis", styles["SubHeading"]))
 failure_text = """
-Pharma-Supply-Intel → Lack of Context → Compliance claims felt unverified; missing authority anchors.
-D2C-Commerce-AI → Wrong Tone → Over-engineered with tech jargon; failed to resonate with marketing-focused CTOs.
+Pharma-Supply-Intel → Lack of Context → Compliance claims felt unverified;<br/>missing authority anchors.<br/>
+D2C-Commerce-AI → Wrong Tone → Over-engineered with tech jargon;<br/>failed to resonate with marketing-focused CTOs.<br/>
 Infra-TrackPro → Weak CTA → Did not specify time-bound or value-driven next step.
 """
 story.append(Paragraph(failure_text, styles["Body"]))
 story.append(Spacer(1, 0.2 * inch))
 
-# Revised Prompts
+# Revised Prompts with breaks
 story.append(Paragraph("Step 3: Revised Prompts to Fix Failures", styles["SubHeading"]))
 prompts_text = """
-1️⃣ Pharma-Supply-Intel (COO Pharma) – Conviction Stage, Authority + Social Proof
-Revised Prompt: Reference audited client outcomes (e.g., "Validated by WHO-compliant audits, Medora Labs cut reporting delays by 40%").
-Justification: Anchors trust at SQL level using verified case studies.
-
-2️⃣ D2C-Commerce-AI (CTO D2C) – Interest Stage, Reciprocity + Liking
-Revised Prompt: Simplify tone, lead with shared industry pain (e.g., "Every D2C CTO faces this Q4 crunch..."). Offer free forecast simulation.
-Justification: Builds engagement and empathy, fixes low Interest.
-
-3️⃣ Infra-TrackPro (Construction COO) – Action Stage, Scarcity + Commitment
-Revised Prompt: Add urgency and specificity (e.g., "Early-access slots remaining: 5"). CTA: suggest exact meeting times.
+1️⃣ Pharma-Supply-Intel (COO Pharma) – Conviction Stage, Authority + Social Proof<br/>
+Revised Prompt: Reference audited client outcomes (e.g., "Validated by WHO-compliant audits, Medora Labs cut reporting delays by 40%").<br/>
+Justification: Anchors trust at SQL level using verified case studies.<br/><br/>
+2️⃣ D2C-Commerce-AI (CTO D2C) – Interest Stage, Reciprocity + Liking<br/>
+Revised Prompt: Simplify tone, lead with shared industry pain (e.g., "Every D2C CTO faces this Q4 crunch..."). Offer free forecast simulation.<br/>
+Justification: Builds engagement and empathy, fixes low Interest.<br/><br/>
+3️⃣ Infra-TrackPro (Construction COO) – Action Stage, Scarcity + Commitment<br/>
+Revised Prompt: Add urgency and specificity (e.g., "Early-access slots remaining: 5"). CTA: suggest exact meeting times.<br/>
 Justification: Increases SQL → Client conversions via urgency and commitment framing.
 """
 story.append(Paragraph(prompts_text, styles["Body"]))
 story.append(Spacer(1, 0.2 * inch))
 
-# Summary Table
-story.append(Paragraph("Summary Dashboard Insight", styles["SubHeading"]))
+# Summary Table (compact)
 summary_data = [
     ["Funnel Weakness", "AIDCA Stage Impacted", "Recommended Fix", "Executive Priority"],
     ["Trust Gap", "Conviction", "Case studies + authority proof", "High"],
     ["Low Engagement", "Interest", "Relatable tone + reciprocity", "Medium"],
     ["Weak CTA", "Action", "Urgency + commitment framing", "High"]
 ]
-t2 = Table(summary_data, repeatRows=1)
+summary_data_small = []
+for row in summary_data:
+    summary_data_small.append([Paragraph(str(cell), small_style) for cell in row])
+
+col_widths_summary = [120, 100, 180, 60]
+t2 = Table(summary_data_small, colWidths=col_widths_summary, repeatRows=1)
 t2.setStyle(TableStyle([
     ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#d3d3d3')),
     ('GRID', (0,0), (-1,-1), 0.5, colors.black),
     ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
+    ('VALIGN', (0,0), (-1,-1), 'TOP'),
+    ('LEFTPADDING', (0,0), (-1,-1), 4),
+    ('RIGHTPADDING', (0,0), (-1,-1), 4),
+    ('TOPPADDING', (0,0), (-1,-1), 2),
+    ('BOTTOMPADDING', (0,0), (-1,-1), 2)
 ]))
 story.append(t2)
 
-# Save PDF
+# -----------------------------
+# Step 4: Save PDF
+# -----------------------------
+doc = SimpleDocTemplate(file_path_part2, pagesize=A4, title="Part 2 - Compact Funnel with Breaks")
 doc.build(story)
-file_path_part2
+
+print(f"Compact Part 2 PDF with line breaks saved to Desktop at: {file_path_part2}")
