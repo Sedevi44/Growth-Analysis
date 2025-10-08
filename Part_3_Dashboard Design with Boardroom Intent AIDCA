@@ -1,0 +1,66 @@
+import os
+from openpyxl import load_workbook
+from openpyxl.chart import BarChart, Reference, Series
+from openpyxl.styles import Font
+
+# -----------------------------
+# Step 1: Load Existing Workbook
+# -----------------------------
+desktop_path = os.path.join(os.path.expanduser("~"), "Desktop")
+file_path_excel = os.path.join(desktop_path, "B2B_Outreach_Dashboard.xlsx")
+
+wb = load_workbook(file_path_excel)
+ws = wb["Dashboard"]
+
+# -----------------------------
+# Step 2: Prepare numeric AIDCA data
+# -----------------------------
+# Assign numeric values to stages for visualization
+stage_map = {"Weak": 1, "Moderate": 2, "Strong": 3}
+
+aidca_rows = {
+    "Pharma-Supply-Intel": ["Strong", "Moderate", "Moderate", "Weak", "Moderate"],
+    "D2C-Commerce-AI": ["Moderate", "Weak", "Moderate", "Strong", "Moderate"],
+    "Infra-TrackPro": ["Strong", "Strong", "Moderate", "Moderate", "Weak"]
+}
+
+# Write numeric values to sheet (temporary table for chart)
+start_row = 20
+ws.cell(row=start_row-1, column=1, value="Campaign")
+stages = ["Attention", "Interest", "Desire", "Conviction", "Action"]
+for col_num, stage in enumerate(stages, start=2):
+    ws.cell(row=start_row-1, column=col_num, value=stage)
+    
+for row_num, (campaign, values) in enumerate(aidca_rows.items(), start=start_row):
+    ws.cell(row=row_num, column=1, value=campaign)
+    for col_num, stage_value in enumerate(values, start=2):
+        ws.cell(row=row_num, column=col_num, value=stage_map[stage_value])
+
+# -----------------------------
+# Step 3: Create Stacked Bar Chart
+# -----------------------------
+chart = BarChart()
+chart.type = "col"
+chart.title = "AIDCA Stage Strength per Campaign (Stacked)"
+chart.y_axis.title = "Stage Strength (1=Weak, 3=Strong)"
+chart.x_axis.title = "Campaign"
+chart.style = 12
+chart.grouping = "stacked"
+
+data = Reference(ws, min_col=2, max_col=6, min_row=start_row-1, max_row=start_row+2)
+cats = Reference(ws, min_col=1, min_row=start_row, max_row=start_row+2)
+
+chart.add_data(data, titles_from_data=True)
+chart.set_categories(cats)
+
+# Add chart to worksheet
+ws.add_chart(chart, "G20")  # position below previous table
+
+# -----------------------------
+# Step 4: Save Workbook
+# -----------------------------
+try:
+    wb.save(file_path_excel)
+    print(f"AIDCA stacked chart added to Excel dashboard at: {file_path_excel}")
+except PermissionError:
+    print("PermissionError: Please close the Excel file if it is open and try again.")
